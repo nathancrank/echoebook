@@ -1,4 +1,4 @@
-#@echoebook
+# @echoebook
 
 @echoebook is an ebook style Twitter bot whose personality is based on the accounts it follows. As @echoebook follows other accounts, its personality will change and should emulate the crowds behaviors.
 
