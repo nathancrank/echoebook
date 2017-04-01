@@ -151,6 +151,7 @@ class CloneBot < Ebooks::Bot
     @friends.each do |friend|
       @corpusList.push( "corpus/#{friend.screen_name}.json" )
       Ebooks::Archive.new( "#{friend.screen_name}", "corpus/#{friend.screen_name}.json", @twitter ).sync
+			sleep 10
     end
     @model = Ebooks::Model.consume_all( @corpusList )
   end
