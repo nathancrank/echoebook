@@ -6,6 +6,6 @@
 
 Sometimes the tweets are pretty coherent; other times they aren't. Either way, it's usually entertaining.
 
-The process is based on the mathematical principles of Markov Chains. The process is not dissimilar to how autocorrect/suggest works on your smartphone.
+The process is based on the mathematical principles of Markov Chains. The process is not dissimilar to how autocorrect/suggest works on your smartphone. 
 
 This bot leans a lot on the work of the [mispy/twitter_ebooks](https://github.com/mispy/twitter_ebooks) framework.
