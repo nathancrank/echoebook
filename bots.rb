@@ -36,9 +36,14 @@ class CloneBot < Ebooks::Bot
       tweet(model.make_statement)
     end
 
-    scheduler.every '1h' do
+    scheduler.every '12h', :allow_overlapping => false, :first_in => '1h30m' do
       update_model!
     end
+
+    scheduler.every '3h', :allow_overlapping => false, :first_in => '1h' do
+      update_corpus!
+    end
+    
   end
 
   def on_message(dm)
@@ -74,22 +79,18 @@ class CloneBot < Ebooks::Bot
       if very_interesting
         favorite(tweet) if rand < 0.5
         retweet(tweet) if rand < 0.1
+	if tweet.user.tweets_count > 10 && rand < 0.5
+          follow(tweet.user.screen_name)
+        end
         if rand < 0.01
           userinfo(tweet.user.screen_name).pesters_left -= 1
           reply(tweet, model.make_response(meta(tweet).mentionless, meta(tweet).limit))
-        end
-        if rand < 0.5
-          if tweet.user.tweets_count > 10
-            follow(tweet.user.screen_name)
-          end
         end
       elsif interesting
         favorite(tweet) if rand < 0.05
         if rand < 0.001
           userinfo(tweet.user.screen_name).pesters_left -= 1
           reply(tweet, model.make_response(meta(tweet).mentionless, meta(tweet).limit))
-        end
-        if rand < 0.05
           if tweet.user.tweets_count > 10
             follow(tweet.user.screen_name)
           end
@@ -136,7 +137,6 @@ class CloneBot < Ebooks::Bot
     # if can_follow?(user.screen_name)
     if user.tweets_count > 10
       follow(user.screen_name)
-      update_model!
     end
     # else
       # log "Not following @#{user.screen_name}"
@@ -144,16 +144,25 @@ class CloneBot < Ebooks::Bot
   end
 
   private
-  def update_model!
+  def update_corpus!
+    GC.start
     @twitter = self.twitter
     @friends = self.twitter.friends
-    @corpusList = Array.new
     @friends.each do |friend|
       @corpusList.push( "corpus/#{friend.screen_name}.json" )
       Ebooks::Archive.new( "#{friend.screen_name}", "corpus/#{friend.screen_name}.json", @twitter ).sync
-			sleep 10
+      GC.start
+      sleep 10
     end
-    @model = Ebooks::Model.consume_all( @corpusList )
+    GC.start
+  end
+
+  private
+  def update_model!
+    GC.start
+    @corpusList = Dir["corpus/*.json"]
+    @model = Ebooks::Model.consume_all( @corpusList  )
+    GC.start
   end
 end
 
